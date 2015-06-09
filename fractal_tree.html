@@ -1,0 +1,65 @@
+<html>
+<head>
+<script src="./processing.js"></script>
+</head>
+<body>
+<canvas id="canvas1"  ></canvas>
+<script>
+
+ function sketchProc(processing) {
+    var theta;   
+
+    processing.setup = function () {
+      processing.size(640, 360);
+    }
+
+    function branch(h) {
+      // Each branch will be 2/3rds the size of the previous one
+      h *= 0.66;
+      
+      // All recursive functions must have an exit condition!!!!
+      // Here, ours is when the length of the branch is 2 pixels or less
+      if (h > 2) {
+        processing.pushMatrix();    // Save the current state of transformation (i.e. where are we now)
+        processing.rotate(theta);   // Rotate by theta
+        processing.line(0, 0, 0, -h);  // Draw the branch
+        processing.translate(0, -h); // Move to the end of the branch
+        branch(h);       // Ok, now call myself to draw two new branches!!
+        processing.popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state
+        
+        // Repeat the same thing, only branch off to the "left" this time!
+        processing.pushMatrix();
+        processing.rotate(-theta);
+        processing.line(0, 0, 0, -h);
+        processing.translate(0, -h);
+        branch(h);
+        processing.popMatrix();
+      }
+    }
+
+   // Override draw function, by default it will be called 60 times per second
+   processing.draw = function() {
+      processing.background(0);
+      processing.frameRate(30);
+      processing.stroke(255);
+      // Let's pick an angle 0 to 90 degrees based on the mouse position
+      var a = (processing.mouseX / processing.width) * 90;
+      // Convert it to radians
+      theta = processing.radians(a);
+      // Start the tree from the bottom of the screen
+      processing.translate(processing.width/2,processing.height);
+      // Draw a line 120 pixels
+      processing.line(0,0,0,-120);
+      // Move to the end of that line
+      processing.translate(0,-120);
+      // Start the recursive branching!
+      branch(120);
+    };
+   }
+ 
+ var canvas = document.getElementById("canvas1");
+ // attaching the sketchProc function to the canvas
+ var processingInstance = new Processing(canvas, sketchProc);
+
+</script>
+</body></html>
